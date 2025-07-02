@@ -4,15 +4,18 @@ import os
 app = Flask(__name__)
 TODO_FILE = "tasks.txt"
 
+# show_tasks を修正：内容と期限を分けて読み込む
 def show_tasks():
     if not os.path.exists(TODO_FILE):
         return []
     with open(TODO_FILE, "r") as f:
-        return [line.strip() for line in f.readlines()]
+        lines = f.readlines()
+        return [tuple(line.strip().split(",", 1)) for line in lines]  # (task, deadline)
 
-def add_task(task):
+# add_task を修正：taskと期限を保存
+def add_task(task, deadline):
     with open(TODO_FILE, "a") as f:
-        f.write(task + "\n")
+        f.write(f"{task},{deadline}\n")
 
 def delete_task(index):
     tasks = show_tasks()
