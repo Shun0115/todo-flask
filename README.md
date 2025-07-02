@@ -74,3 +74,6 @@ python3 todo_web.py
 
 * アプリを終了するときは、ターミナルで `Ctrl + C` を押してください。
 * このアプリはあくまでローカル用の簡易アプリです（セキュリティ・本番運用非対応）。
+
+* ![image](https://github.com/user-attachments/assets/5808ff80-81b5-4f3d-a1d2-3933f1c817c8)
+
