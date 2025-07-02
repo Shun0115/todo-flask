@@ -25,15 +25,14 @@ def delete_task(index):
             for task in tasks:
                 f.write(task + "\n")
 
-# HTMLテンプレートに期限の入力欄を追加
 HTML_TEMPLATE = """
 <!doctype html>
 <title>ToDo App</title>
 <h1>ToDoリスト</h1>
 <ul>
-  {% for i, (task, deadline) in enumerate(tasks) %}
+  {% for task, deadline in tasks %}
     <li>{{ task }} - 締切: {{ deadline }} 
-    <a href="/delete/{{ i }}">[削除]</a></li>
+    <a href="/delete/{{ loop.index0 }}">[削除]</a></li>
   {% endfor %}
 </ul>
 <form action="/add" method="post">
@@ -42,7 +41,6 @@ HTML_TEMPLATE = """
   <input type="submit" value="追加">
 </form>
 """
-    
 
 @app.route("/")
 def index():
