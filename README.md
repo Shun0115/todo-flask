@@ -18,5 +18,6 @@
 ### ① クローン
 
 ```bash
-git clone https://github.com/あなたのユーザー名/todo-flask.git
+git clone https://github.com/Shun0115/todo-flask.git
 cd todo-flask
+
