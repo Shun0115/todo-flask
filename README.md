@@ -78,13 +78,3 @@ python3 todo_web.py
 ````
 
 ---
-
-## ✅ 実行に必要なファイルが複数ある場合
-
-```markdown
-- todo_web.py      # Flaskアプリ
-- tasks.txt        # ToDoデータ保存用（空でもOK）
-- requirements.txt # パッケージ管理（Flaskのみなら省略可）
-````
-
----
