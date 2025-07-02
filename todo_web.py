@@ -22,8 +22,8 @@ def delete_task(index):
     if 0 <= index < len(tasks):
         tasks.pop(index)
         with open(TODO_FILE, "w") as f:
-            for task in tasks:
-                f.write(task + "\n")
+            for task, deadline in tasks:
+                f.write(f"{task},{deadline}\n")
 
 HTML_TEMPLATE = """
 <!doctype html>
