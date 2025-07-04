@@ -56,7 +56,7 @@ HTML_TEMPLATE = """
 <h1>ToDoリスト</h1>
 <ul>
   {% for task, deadline, done in tasks %}
-    <li style="color: {{ get_color(deadline, done) }}">
+    <li style="color: {{ get_color(deadline, done) }}; {% if done == 'True' %}text-decoration: line-through;{% endif %}">
       <form action="/toggle/{{ loop.index0 }}" method="post" style="display:inline;">
         <input type="checkbox" name="done" onchange="this.form.submit()" {% if done == 'True' %}checked{% endif %}>
       </form>
