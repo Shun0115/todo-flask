@@ -5,12 +5,24 @@ app = Flask(__name__)
 TODO_FILE = "tasks.txt"
 
 # show_tasks：タスク・期限・完了フラグを読み込む
+# show_tasks() にソート処理を追加
+from datetime import datetime
+
 def show_tasks():
     if not os.path.exists(TODO_FILE):
         return []
     with open(TODO_FILE, "r") as f:
         lines = f.readlines()
-        return [tuple(line.strip().split(",", 2)) for line in lines]  # (task, deadline, done)
+        tasks = [tuple(line.strip().split(",", 2)) for line in lines]
+
+    def parse_date(task):
+        try:
+            return datetime.strptime(task[1], "%Y-%m-%d")
+        except:
+            return datetime.max
+
+    tasks.sort(key=parse_date)
+    return tasks
 
 # add_task：task, deadline, False を保存
 def add_task(task, deadline):
