@@ -103,7 +103,8 @@ http://127.0.0.1:5001
 
 ### 🖼 スクリーンショット
 
-![image](https://github.com/user-attachments/assets/5808ff80-81b5-4f3d-a1d2-3933f1c817c8)
+<img width="591" alt="image" src="https://github.com/user-attachments/assets/f099ceea-4638-4c3f-a994-f103351f2ddc" />
+
 
 ---
 
