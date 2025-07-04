@@ -53,7 +53,9 @@ python3 todo_web.py
 成功すると、次のように表示されます：
 
 ```
-* Running on http://0.0.0.0:5001 (Press CTRL+C to quit)
+* Running on http://127.0.0.1:5001
+* Running on http://192.168.xxx.xxx:5001
+(Press CTRL+C to quit)
 ```
 
 ---
@@ -79,7 +81,7 @@ http://127.0.0.1:5001
 2. スマホのブラウザで以下にアクセス：
 
    ```http
-   http://192.168.1.20:5001
+   [http://192.168.1.20:5001](http://192.168.179.26:5001)
    ```
 
 ※ Macとスマホが同じWi-Fiに接続されている必要があります。
