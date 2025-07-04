@@ -56,7 +56,7 @@ HTML_TEMPLATE = """
 <h1>ToDoリスト</h1>
 <ul>
   {% for task, deadline, done in tasks %}
-    <li style="color: {{ 'gray' if done == 'True' else 'black' }}">
+    <li style="color: {{ get_color(deadline, done) }}">
       <form action="/toggle/{{ loop.index0 }}" method="post" style="display:inline;">
         <input type="checkbox" name="done" onchange="this.form.submit()" {% if done == 'True' %}checked{% endif %}>
       </form>
@@ -74,7 +74,19 @@ HTML_TEMPLATE = """
 
 @app.route("/")
 def index():
-    return render_template_string(HTML_TEMPLATE, tasks=show_tasks())
+    def get_color(deadline, done):
+        today = datetime.today().date()
+        try:
+            due = datetime.strptime(deadline, "%Y-%m-%d").date()
+            if done == "True":
+                return "gray"
+            elif due < today:
+                return "red"
+            else:
+                return "black"
+        except:
+            return "black"
+    return render_template_string(HTML_TEMPLATE, tasks=show_tasks(), get_color=get_color)
 
 @app.route("/add", methods=["POST"])
 def add():
