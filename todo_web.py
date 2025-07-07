@@ -80,7 +80,20 @@ HTML_TEMPLATE = """
       </form>
       <div class="flex-grow-1">
         <div>{{ task }} <small class="text-muted">[{{ category }}]</small></div>
-        <div class="text-muted small">締切: {{ deadline }}</div>
+        <div class="text-muted small">
+          締切: {{ deadline }}
+          {% set left = days_left(deadline) %}
+          {% if left is not none %}
+            {% if left > 0 %}
+              （あと {{ left }} 日）
+            {% elif left == 0 %}
+              （今日が締切！）
+            {% else %}
+              （{{ -left }} 日前に締切切れ）
+            {% endif %}
+      {% endif %}
+      </div>
+
       </div>
       <div class="d-flex">
         <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-outline-danger me-1">削除</a>
@@ -156,7 +169,7 @@ HTML_TEMPLATE = """
 def index():
     # カテゴリ選択肢をここで定義！
     CATEGORIES = ["健康", "勉強", "仕事", "趣味", "家事", "その他"]
-    
+
     def get_color(deadline, done):
         today = datetime.today().date()
         try:
@@ -169,7 +182,22 @@ def index():
                 return "black"
         except:
             return "black"
-    return render_template_string(HTML_TEMPLATE, tasks=show_tasks(), get_color=get_color, categories=CATEGORIES)
+
+    def days_left(deadline):
+        try:
+            due = datetime.strptime(deadline, "%Y-%m-%d").date()
+            today = datetime.today().date()
+            return (due - today).days
+        except:
+            return None
+
+    return render_template_string(
+        HTML_TEMPLATE,
+        tasks=show_tasks(),
+        get_color=get_color,
+        categories=CATEGORIES,
+        days_left=days_left
+    )
 
 @app.route("/add", methods=["POST"])
 def add():
