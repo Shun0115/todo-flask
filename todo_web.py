@@ -58,25 +58,64 @@ HTML_TEMPLATE = """
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ToDo App</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="bg-light">
   <div class="container py-4">
     <h1 class="mb-4 text-center">📋 ToDoリスト</h1>
 
     <ul class="list-group mb-4">
-      {% for task, deadline, done, category in tasks %}
-        <li class="list-group-item d-flex justify-content-between align-items-center" style="color: {{ get_color(deadline, done) }}; {% if done == 'True' %}text-decoration: line-through;{% endif %}">
-          <form action="/toggle/{{ loop.index0 }}" method="post" class="me-2">
-            <input type="checkbox" name="done" onchange="this.form.submit()" {% if done == 'True' %}checked{% endif %}>
-          </form>
-          <div class="flex-grow-1">
-            <div>{{ task }} <small class="text-muted">[{{ category }}]</small></div>
-            <div class="text-muted small">締切: {{ deadline }}</div>
+  {% for task, deadline, done, category in tasks %}
+    <li class="list-group-item d-flex justify-content-between align-items-center" style="color: {{ get_color(deadline, done) }}; {% if done == 'True' %}text-decoration: line-through;{% endif %}">
+      <form action="/toggle/{{ loop.index0 }}" method="post" class="me-2">
+        <input type="checkbox" name="done" onchange="this.form.submit()" {% if done == 'True' %}checked{% endif %}>
+      </form>
+      <div class="flex-grow-1">
+        <div>{{ task }} <small class="text-muted">[{{ category }}]</small></div>
+        <div class="text-muted small">締切: {{ deadline }}</div>
+      </div>
+      <div class="d-flex">
+        <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-outline-danger me-1">削除</a>
+        <!-- 編集ボタン（モーダル起動） -->
+        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ loop.index0 }}">
+          編集
+        </button>
+      </div>
+    </li>
+
+    <!-- 編集モーダル -->
+    <div class="modal fade" id="editModal{{ loop.index0 }}" tabindex="-1" aria-labelledby="editModalLabel{{ loop.index0 }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <form action="/update/{{ loop.index0 }}" method="post">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editModalLabel{{ loop.index0 }}">タスク編集</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">タスク</label>
+                <input type="text" name="task" class="form-control" value="{{ task }}" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">締切</label>
+                <input type="date" name="deadline" class="form-control" value="{{ deadline }}" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">カテゴリ</label>
+                <input type="text" name="category" class="form-control" value="{{ category }}" required>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+              <button type="submit" class="btn btn-success">保存</button>
+            </div>
           </div>
-          <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-outline-danger">削除</a>
-        </li>
-      {% endfor %}
-    </ul>
+        </form>
+      </div>
+    </div>
+  {% endfor %}
+</ul>
 
     <form action="/add" method="post" class="row g-2">
       <div class="col-12 col-md-4">
@@ -129,6 +168,20 @@ def delete(index):
 @app.route("/toggle/<int:index>", methods=["POST"])
 def toggle(index):
     toggle_done(index)
+    return redirect("/")
+
+@app.route("/update/<int:index>", methods=["POST"])
+def update(index):
+    tasks = show_tasks()
+    if 0 <= index < len(tasks):
+        task = request.form["task"]
+        deadline = request.form["deadline"]
+        category = request.form["category"]
+        _, _, done, _ = tasks[index]  # 完了フラグは維持
+        tasks[index] = (task, deadline, done, category)
+        with open(TODO_FILE, "w") as f:
+            for t, d, dn, c in tasks:
+                f.write(f"{t},{d},{dn},{c}\n")
     return redirect("/")
 
 if __name__ == "__main__":
