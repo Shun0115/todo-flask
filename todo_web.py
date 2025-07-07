@@ -73,7 +73,10 @@ HTML_TEMPLATE = """
   {% for task, deadline, done, category in tasks %}
     <li class="list-group-item d-flex justify-content-between align-items-center" style="color: {{ get_color(deadline, done) }}; {% if done == 'True' %}text-decoration: line-through;{% endif %}">
       <form action="/toggle/{{ loop.index0 }}" method="post" class="me-2">
-        <input type="checkbox" name="done" onchange="this.form.submit()" {% if done == 'True' %}checked{% endif %}>
+        <input type="checkbox" name="done" 
+               onchange="this.form.submit()" 
+               {% if done == 'True' %}checked{% endif %}
+               style="transform: scale(1.3); margin-right: 6px;">
       </form>
       <div class="flex-grow-1">
         <div>{{ task }} <small class="text-muted">[{{ category }}]</small></div>
