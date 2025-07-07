@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template_string
+from flask import Flask, request, redirect, render_template
 import os
 from datetime import datetime
 
@@ -54,117 +54,6 @@ def delete_task(index):
             for task, deadline, done, category in tasks:
                 f.write(f"{task},{deadline},{done},{category}\n")
 
-# HTMLテンプレート（Bootstrap＋カテゴリ表示）
-HTML_TEMPLATE = """
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ToDo App</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body class="bg-light">
-  <div class="container py-4">
-    <h1 class="mb-4 text-center">📋 ToDoリスト</h1>
-
-    <ul class="list-group mb-4">
-  {% for task, deadline, done, category in tasks %}
-    <li class="list-group-item d-flex justify-content-between align-items-center" style="color: {{ get_color(deadline, done) }}; {% if done == 'True' %}text-decoration: line-through;{% endif %}">
-      <form action="/toggle/{{ loop.index0 }}" method="post" class="me-2">
-        <input type="checkbox" name="done" 
-               onchange="this.form.submit()" 
-               {% if done == 'True' %}checked{% endif %}
-               style="transform: scale(1.3); margin-right: 6px;">
-      </form>
-      <div class="flex-grow-1">
-        <div>{{ task }} <small class="text-muted">[{{ category }}]</small></div>
-        <div class="text-muted small">
-          締切: {{ deadline }}
-          {% set left = days_left(deadline) %}
-          {% if left is not none %}
-            {% if left > 0 %}
-              （あと {{ left }} 日）
-            {% elif left == 0 %}
-              （今日が締切！）
-            {% else %}
-              （{{ -left }} 日前に締切切れ）
-            {% endif %}
-      {% endif %}
-      </div>
-
-      </div>
-      <div class="d-flex">
-        <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-outline-danger me-1">削除</a>
-        <!-- 編集ボタン -->
-        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ loop.index0 }}">
-          編集
-        </button>
-      </div>
-    </li>
-
-    <!-- 🔽 ループ内に残す！モーダル -->
-    <div class="modal fade" id="editModal{{ loop.index0 }}" tabindex="-1" aria-labelledby="editModalLabel{{ loop.index0 }}" aria-hidden="true">
-      <div class="modal-dialog">
-        <form action="/update/{{ loop.index0 }}" method="post">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel{{ loop.index0 }}">タスク編集</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">タスク</label>
-                <input type="text" name="task" class="form-control" value="{{ task }}" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">締切</label>
-                <input type="date" name="deadline" class="form-control" value="{{ deadline }}" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">カテゴリ</label>
-                <select name="category" class="form-select" required>
-                  {% for cat in categories %}
-                    <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-              <button type="submit" class="btn btn-success">保存</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  {% endfor %}
-</ul>
-
-    <form action="/add" method="post" class="row g-2">
-      <div class="col-12 col-md-4">
-        <input type="text" name="task" class="form-control" placeholder="タスク" required>
-      </div>
-      <div class="col-12 col-md-3">
-        <input type="date" name="deadline" class="form-control" required>
-      </div>
-      <div class="col-12 col-md-3">
-        <select name="category" class="form-select" required>
-          {% for cat in categories %}
-            <option value="{{ cat }}">{{ cat }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="col-12 col-md-2">
-        <input type="submit" value="追加" class="btn btn-primary w-100">
-      </div>
-    </form>
-  </div>
-</body>
-</html>
-"""
-
 @app.route("/")
 def index():
     # カテゴリ選択肢をここで定義！
@@ -191,13 +80,13 @@ def index():
         except:
             return None
 
-    return render_template_string(
-        HTML_TEMPLATE,
-        tasks=show_tasks(),
-        get_color=get_color,
-        categories=CATEGORIES,
-        days_left=days_left
-    )
+    return render_template(
+    "index.html",  # ← ファイル名指定
+    tasks=show_tasks(),
+    get_color=get_color,
+    categories=CATEGORIES,
+    days_left=days_left
+)
 
 @app.route("/add", methods=["POST"])
 def add():
