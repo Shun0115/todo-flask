@@ -11,9 +11,14 @@ TODO_FILE = "tasks.txt"
 def show_tasks():
     if not os.path.exists(TODO_FILE):
         return []
-    with open(TODO_FILE, "r") as f:
+
+    tasks = []
+    with open(TODO_FILE, "r", encoding="utf-8") as f:
         lines = f.readlines()
-        tasks = [tuple(line.strip().split(",",  3)) for line in lines]
+        for i, line in enumerate(lines):
+            parts = line.strip().split(",", maxsplit=3)
+            print(f"[DEBUG] {i+1}行目: {parts}")
+            tasks.append(tuple(parts))
 
     def parse_date(task):
         try:
@@ -76,14 +81,14 @@ HTML_TEMPLATE = """
       </div>
       <div class="d-flex">
         <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-outline-danger me-1">削除</a>
-        <!-- 編集ボタン（モーダル起動） -->
+        <!-- 編集ボタン -->
         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ loop.index0 }}">
           編集
         </button>
       </div>
     </li>
 
-    <!-- 編集モーダル -->
+    <!-- 🔽 ループ内に残す！モーダル -->
     <div class="modal fade" id="editModal{{ loop.index0 }}" tabindex="-1" aria-labelledby="editModalLabel{{ loop.index0 }}" aria-hidden="true">
       <div class="modal-dialog">
         <form action="/update/{{ loop.index0 }}" method="post">
@@ -103,7 +108,11 @@ HTML_TEMPLATE = """
               </div>
               <div class="mb-3">
                 <label class="form-label">カテゴリ</label>
-                <input type="text" name="category" class="form-control" value="{{ category }}" required>
+                <select name="category" class="form-select" required>
+                  {% for cat in categories %}
+                    <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }}</option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
             <div class="modal-footer">
@@ -125,7 +134,11 @@ HTML_TEMPLATE = """
         <input type="date" name="deadline" class="form-control" required>
       </div>
       <div class="col-12 col-md-3">
-        <input type="text" name="category" class="form-control" placeholder="カテゴリ" required>
+        <select name="category" class="form-select" required>
+          {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
       </div>
       <div class="col-12 col-md-2">
         <input type="submit" value="追加" class="btn btn-primary w-100">
@@ -138,6 +151,9 @@ HTML_TEMPLATE = """
 
 @app.route("/")
 def index():
+    # カテゴリ選択肢をここで定義！
+    CATEGORIES = ["健康", "勉強", "仕事", "趣味", "家事", "その他"]
+    
     def get_color(deadline, done):
         today = datetime.today().date()
         try:
@@ -150,7 +166,7 @@ def index():
                 return "black"
         except:
             return "black"
-    return render_template_string(HTML_TEMPLATE, tasks=show_tasks(), get_color=get_color)
+    return render_template_string(HTML_TEMPLATE, tasks=show_tasks(), get_color=get_color, categories=CATEGORIES)
 
 @app.route("/add", methods=["POST"])
 def add():
