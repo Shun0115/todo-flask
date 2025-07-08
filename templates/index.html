@@ -10,7 +10,7 @@
 <body class="bg-light">
   <div class="container py-4">
     <h1 class="mb-4 text-center">📋 ToDoリスト</h1>
-    　<form method="get" action="/" class="mb-4">
+    <form method="get" action="/" class="mb-4">
         <div class="input-group">
           <input type="text" class="form-control" name="q" placeholder="カテゴリやタスク名で検索" value="{{ query }}">
           <button class="btn btn-outline-secondary" type="submit">検索</button>
@@ -19,14 +19,17 @@
 
       <ul class="nav nav-tabs mb-3">
         {% for cat in categories %}
-          <li class="nav-item">
-            <a class="nav-link {% if cat == selected_category %}active{% endif %}"
-               href="/?category={{ cat }}&q={{ query }}">{{ cat }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    
-      
+              <li class="nav-item">
+                <a class="nav-link {% if cat == selected_category and not expired_only %}active{% endif %}"
+                   href="/?category={{ cat }}&q={{ query }}">{{ cat }}</a>
+              </li>
+            {% endfor %}
+            <li class="nav-item">
+              <a class="nav-link {% if expired_only %}active{% endif %}" 
+                 href="/?expired=true&q={{ query }}">期限切れ</a>
+            </li>
+          </ul>          
+
       {% if query %}
         <p class="text-muted">「<strong>{{ query }}</strong>」に一致するタスクの検索結果</p>
       {% endif %}
@@ -43,17 +46,17 @@
       <div class="flex-grow-1">
         <div>{{ task }} <small class="text-muted">[{{ category }}]</small></div>
         <div class="text-muted small">
-          締切: {{ deadline }}
-          {% set left = days_left(deadline) %}
-          {% if left is not none %}
-            {% if left > 0 %}
-              （あと {{ left }} 日）
-            {% elif left == 0 %}
-              （今日が締切！）
-            {% else %}
-              （{{ -left }} 日前に締切切れ）
-            {% endif %}
-      {% endif %}
+            締切: {{ deadline }}
+            {% set left = days_left(deadline) %}
+            {% if left is not none %}
+              {% if left > 0 %}
+                <span class="badge bg-primary ms-2">あと {{ left }} 日</span>
+              {% elif left == 0 %}
+                <span class="badge bg-warning text-dark ms-2">今日が締切！</span>
+              {% else %}
+                <span class="badge bg-danger ms-2">期限切れ（{{ -left }}日前）</span>
+              {% endif %}
+            {% endif %}            
       </div>
 
       </div>

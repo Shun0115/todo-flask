@@ -57,8 +57,9 @@ def delete_task(index):
 @app.route("/")
 def index():
     CATEGORIES = ["健康", "勉強", "仕事", "趣味", "家事", "その他"]
-    query = request.args.get("q", "").strip() # ← 検索キーワードを取得
+    query = request.args.get("q", "").strip()
     selected_category = request.args.get("category", "すべて")
+    expired_only = request.args.get("expired", "false") == "true"
 
     def get_color(deadline, done):
         today = datetime.today().date()
@@ -85,6 +86,14 @@ def index():
 
     if selected_category !="すべて":
         all_tasks = [t for t in all_tasks if t[3] == selected_category]
+
+    if expired_only:
+        today = datetime.today().date()
+        all_tasks = [
+            t for t in all_tasks
+            if datetime.strptime(t[1], "%Y-%m-%d").date() < today and t[2] == "False"
+        ]
+        
     if query:
         all_tasks = [
             t for t in all_tasks
@@ -98,7 +107,8 @@ def index():
         categories=["すべて"] + CATEGORIES,
         selected_category=selected_category,
         days_left=days_left,
-        query=query 
+        query=query,
+        expired_only=expired_only
     )
 
 @app.route("/add", methods=["POST"])
