@@ -56,8 +56,9 @@ def delete_task(index):
 
 @app.route("/")
 def index():
-    # カテゴリ選択肢をここで定義！
     CATEGORIES = ["健康", "勉強", "仕事", "趣味", "家事", "その他"]
+    query = request.args.get("q", "").strip() # ← 検索キーワードを取得
+    selected_category = request.args.get("category", "すべて")
 
     def get_color(deadline, done):
         today = datetime.today().date()
@@ -80,13 +81,25 @@ def index():
         except:
             return None
 
+    all_tasks = show_tasks()
+
+    if selected_category !="すべて":
+        all_tasks = [t for t in all_tasks if t[3] == selected_category]
+    if query:
+        all_tasks = [
+            t for t in all_tasks
+            if query.lower() in t[0].lower() or query.lower() in t[3].lower()
+         ]
+
     return render_template(
-    "index.html",  # ← ファイル名指定
-    tasks=show_tasks(),
-    get_color=get_color,
-    categories=CATEGORIES,
-    days_left=days_left
-)
+        "index.html",  # ← ファイル名指定
+        tasks=all_tasks,
+        get_color=get_color,
+        categories=["すべて"] + CATEGORIES,
+        selected_category=selected_category,
+        days_left=days_left,
+        query=query 
+    )
 
 @app.route("/add", methods=["POST"])
 def add():

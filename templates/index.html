@@ -10,6 +10,26 @@
 <body class="bg-light">
   <div class="container py-4">
     <h1 class="mb-4 text-center">📋 ToDoリスト</h1>
+    　<form method="get" action="/" class="mb-4">
+        <div class="input-group">
+          <input type="text" class="form-control" name="q" placeholder="カテゴリやタスク名で検索" value="{{ query }}">
+          <button class="btn btn-outline-secondary" type="submit">検索</button>
+        </div>
+      </form>
+
+      <ul class="nav nav-tabs mb-3">
+        {% for cat in categories %}
+          <li class="nav-item">
+            <a class="nav-link {% if cat == selected_category %}active{% endif %}"
+               href="/?category={{ cat }}&q={{ query }}">{{ cat }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    
+      
+      {% if query %}
+        <p class="text-muted">「<strong>{{ query }}</strong>」に一致するタスクの検索結果</p>
+      {% endif %}
 
     <ul class="list-group mb-4">
   {% for task, deadline, done, category in tasks %}
