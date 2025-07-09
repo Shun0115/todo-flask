@@ -5,6 +5,12 @@ from datetime import datetime
 app = Flask(__name__)
 TODO_FILE = "tasks.txt"
 
+def parse_date(task):
+        try:
+            return datetime.strptime(task[1], "%Y-%m-%d")
+        except:
+            return datetime.max
+
 def show_tasks():
     if not os.path.exists(TODO_FILE):
         return []
@@ -16,13 +22,12 @@ def show_tasks():
             parts = line.strip().split(",", maxsplit=4)
             tasks.append(tuple(parts)) # (task, deadline, done, category, priority)
 
-    def parse_date(task):
-        try:
-            return datetime.strptime(task[1], "%Y-%m-%d")
-        except:
-            return datetime.max
+    priority_order = {"高": 0, "中": 1, "低": 2}
 
-    tasks.sort(key=parse_date)
+    tasks.sort(key=lambda task: (
+        parse_date(task),
+        priority_order.get(task[4], 3)
+    ))
     return tasks
 
 # add_task：task, deadline, False を保存
