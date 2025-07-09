@@ -110,6 +110,13 @@
          ✅ 完了タスクを{{ '表示' if hide_done else '隠す' }}
     </a>
   </div>
+  <!-- ✅ 完了タスクのみ表示 切替ボタン -->
+  <div class="mb-3 text-end">
+    <a href="/?{% for k, v in query_params.items() if k != 'only_done' %}{{ k }}={{ v }}&{% endfor %}only_done={{ 'false' if show_only_done else 'true' }}"
+       class="btn btn-sm btn-outline-{{ 'success' if show_only_done else 'secondary' }}">
+       ✔️ 完了タスクのみ{{ '解除' if show_only_done else '表示' }}
+    </a>
+  </div>
       <ul class="nav nav-tabs mb-3">
         {% for cat in categories %}
               <li class="nav-item">

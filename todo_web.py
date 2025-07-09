@@ -70,6 +70,7 @@ def index():
     expired_only = request.args.get("expired", "false") == "true"
     date_filter = request.args.get("date_filter", "")
     hide_done = request.args.get("hide_done", "false") == "true"
+    show_only_done = request.args.get("only_done", "false") == "true"
 
     def get_color(deadline, done):
         today = datetime.today().date()
@@ -93,6 +94,8 @@ def index():
             return None
 
     all_tasks = show_tasks()
+    if show_only_done:
+        all_tasks = [t for t in all_tasks if t[2] == "True"]
 
     if date_filter:  # ← インデント修正
         today = datetime.today().date()
@@ -139,7 +142,8 @@ def index():
         expired_only=expired_only,
         date_filter=date_filter,
         hide_done=hide_done,
-        query_params=query_params
+        query_params=query_params,
+        show_only_done=show_only_done
     )
 
 @app.route("/add", methods=["POST"])
