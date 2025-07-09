@@ -69,6 +69,7 @@ def index():
     selected_category = request.args.get("category", "すべて")
     expired_only = request.args.get("expired", "false") == "true"
     date_filter = request.args.get("date_filter", "")
+    hide_done = request.args.get("hide_done", "false") == "true"
 
     def get_color(deadline, done):
         today = datetime.today().date()
@@ -121,6 +122,11 @@ def index():
             if query.lower() in t[0].lower() or query.lower() in t[3].lower()
          ]
 
+    if hide_done:
+        all_tasks = [t for t in all_tasks if t[2] != "True"]
+
+    query_params = request.args.to_dict(flat=True)
+
     return render_template(
         "index.html",
         tasks=all_tasks,
@@ -131,7 +137,9 @@ def index():
         days_left=days_left,
         query=query,
         expired_only=expired_only,
-        date_filter=date_filter
+        date_filter=date_filter,
+        hide_done=hide_done,
+        query_params=query_params
     )
 
 @app.route("/add", methods=["POST"])

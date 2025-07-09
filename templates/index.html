@@ -96,13 +96,20 @@
     </button>
   </div>
   
-    <form method="get" action="/" class="mb-4">
-        <div class="input-group">
-          <input type="text" class="form-control" name="q" placeholder="カテゴリやタスク名で検索" value="{{ query }}">
-          <button class="btn btn-outline-secondary" type="submit">検索</button>
-        </div>
-      </form>
-
+  <form method="get" action="/" class="mb-4">
+    <div class="input-group">
+      <input type="text" class="form-control" name="q" placeholder="カテゴリやタスク名で検索" value="{{ query }}">
+      <button class="btn btn-outline-secondary" type="submit">検索</button>
+    </div>
+  </form>
+  
+  <!-- ✅ 完了タスク切り替えボタン -->
+  <div class="mb-3 text-end">
+    <a href="/?{% for k, v in query_params.items() if k != 'hide_done' %}{{ k }}={{ v }}&{% endfor %}hide_done={{ 'false' if hide_done else 'true' }}"
+        class="btn btn-sm btn-outline-{{ 'info' if hide_done else 'secondary' }}">
+         ✅ 完了タスクを{{ '表示' if hide_done else '隠す' }}
+    </a>
+  </div>
       <ul class="nav nav-tabs mb-3">
         {% for cat in categories %}
               <li class="nav-item">
