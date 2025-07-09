@@ -114,6 +114,18 @@
               <a class="nav-link {% if expired_only %}active{% endif %}" 
                  href="/?expired=true&q={{ query }}">期限切れ</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.args.get('date_filter') == 'today' %}active{% endif %}" 
+                   href="/?date_filter=today&q={{ query }}">今日</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.args.get('date_filter') == 'tomorrow' %}active{% endif %}" 
+                   href="/?date_filter=tomorrow&q={{ query }}">明日</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.args.get('date_filter') == 'week' %}active{% endif %}" 
+                   href="/?date_filter=week&q={{ query }}">今週</a>
+              </li>              
           </ul>          
 
       {% if query %}

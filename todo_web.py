@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, render_template
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 TODO_FILE = "tasks.txt"
@@ -68,6 +68,7 @@ def index():
     query = request.args.get("q", "").strip()
     selected_category = request.args.get("category", "すべて")
     expired_only = request.args.get("expired", "false") == "true"
+    date_filter = request.args.get("date_filter", "")
 
     def get_color(deadline, done):
         today = datetime.today().date()
@@ -92,6 +93,18 @@ def index():
 
     all_tasks = show_tasks()
 
+    if date_filter:  # ← インデント修正
+        today = datetime.today().date()
+        if date_filter == "today":
+            all_tasks = [t for t in all_tasks if datetime.strptime(t[1], "%Y-%m-%d").date() == today and t[2] == "False"]
+        elif date_filter == "tomorrow":
+            tomorrow = today + timedelta(days=1)
+            all_tasks = [t for t in all_tasks if datetime.strptime(t[1], "%Y-%m-%d").date() == tomorrow and t[2] == "False"]
+        elif date_filter == "week":
+            start_of_week = today - timedelta(days=today.weekday())
+            end_of_week = start_of_week + timedelta(days=6)
+            all_tasks = [t for t in all_tasks if start_of_week <= datetime.strptime(t[1], "%Y-%m-%d").date() <= end_of_week and t[2] == "False"]
+
     if selected_category !="すべて":
         all_tasks = [t for t in all_tasks if t[3] == selected_category]
 
@@ -109,7 +122,7 @@ def index():
          ]
 
     return render_template(
-        "index.html",  # ← ファイル名指定
+        "index.html",
         tasks=all_tasks,
         get_color=get_color,
         get_priority_color=get_priority_color,
@@ -117,7 +130,8 @@ def index():
         selected_category=selected_category,
         days_left=days_left,
         query=query,
-        expired_only=expired_only
+        expired_only=expired_only,
+        date_filter=date_filter
     )
 
 @app.route("/add", methods=["POST"])
