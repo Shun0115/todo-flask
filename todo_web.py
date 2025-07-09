@@ -5,9 +5,6 @@ from datetime import datetime
 app = Flask(__name__)
 TODO_FILE = "tasks.txt"
 
-# show_tasks：タスク・期限・完了フラグを読み込む
-# show_tasks() にソート処理を追加
-
 def show_tasks():
     if not os.path.exists(TODO_FILE):
         return []
@@ -16,9 +13,8 @@ def show_tasks():
     with open(TODO_FILE, "r", encoding="utf-8") as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
-            parts = line.strip().split(",", maxsplit=3)
-            print(f"[DEBUG] {i+1}行目: {parts}")
-            tasks.append(tuple(parts))
+            parts = line.strip().split(",", maxsplit=4)
+            tasks.append(tuple(parts)) # (task, deadline, done, category, priority)
 
     def parse_date(task):
         try:
@@ -30,20 +26,20 @@ def show_tasks():
     return tasks
 
 # add_task：task, deadline, False を保存
-def add_task(task, deadline, category):
+def add_task(task, deadline, category, priority):
     with open(TODO_FILE, "a") as f:
-        f.write(f"{task},{deadline},False,{category}\n")
+        f.write(f"{task},{deadline},False,{category},{priority}\n")
 
 # toggle_done：完了状態を切り替え
 def toggle_done(index):
     tasks = show_tasks()
     if 0 <= index < len(tasks):
-        task, deadline, done, category = tasks[index]
+        task, deadline, done, category, priority= tasks[index]
         new_done = "False" if done == "True" else "True"
-        tasks[index] = (task, deadline, new_done, category)
+        tasks[index] = (task, deadline, new_done, category, priority)
         with open(TODO_FILE, "w") as f:
-            for t, d, dn, c in tasks:
-                f.write(f"{t},{d},{dn},{c}\n")
+            for t, d, dn, c, p in tasks:
+                f.write(f"{t},{d},{dn},{c},{p}\n")
 
 # delete_task：指定タスク削除
 def delete_task(index):
@@ -51,8 +47,15 @@ def delete_task(index):
     if 0 <= index < len(tasks):
         tasks.pop(index)
         with open(TODO_FILE, "w") as f:
-            for task, deadline, done, category in tasks:
-                f.write(f"{task},{deadline},{done},{category}\n")
+            for task, deadline, done, category, priority in tasks:
+                f.write(f"{task},{deadline},{done},{category},{priority}\n")
+
+def get_priority_color(priority):
+    return {
+        "高": "danger", # 赤
+        "中": "warning", # 黄
+        "低": "secondary" # グレー
+    }.get(priority, "secondary")
 
 @app.route("/")
 def index():
@@ -104,6 +107,7 @@ def index():
         "index.html",  # ← ファイル名指定
         tasks=all_tasks,
         get_color=get_color,
+        get_priority_color=get_priority_color,
         categories=["すべて"] + CATEGORIES,
         selected_category=selected_category,
         days_left=days_left,
@@ -116,7 +120,8 @@ def add():
     task = request.form["task"]
     deadline = request.form["deadline"]
     category = request.form["category"]
-    add_task(task, deadline, category)
+    priority = request.form["priority"]
+    add_task(task, deadline, category, priority)
     return redirect("/")
 
 @app.route("/delete/<int:index>")
@@ -136,11 +141,12 @@ def update(index):
         task = request.form["task"]
         deadline = request.form["deadline"]
         category = request.form["category"]
-        _, _, done, _ = tasks[index]  # 完了フラグは維持
-        tasks[index] = (task, deadline, done, category)
+        priority = request.form["priority"]
+        _, _, done, _, _ = tasks[index]  
+        tasks[index] = (task, deadline, done, category, priority)
         with open(TODO_FILE, "w") as f:
-            for t, d, dn, c in tasks:
-                f.write(f"{t},{d},{dn},{c}\n")
+            for t, d, dn, c, p in tasks:
+                f.write(f"{t},{d},{dn},{c},{p}\n")
     return redirect("/")
 
 if __name__ == "__main__":
